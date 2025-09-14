@@ -1,0 +1,44 @@
+# 知识点：MySQL 8.0 + phpMyAdmin Docker Compose 配置
+# 用途：学习Docker容器化部署MySQL数据库和Web管理界面
+# 功能：提供MySQL数据库服务和phpMyAdmin Web管理界面
+name: mysql-stack
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - mysql-network
+    command: --default-authentication-plugin=mysql_native_password
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8888:80"
+    depends_on:
+      - mysql
+    networks:
+      - mysql-network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  mysql-network:
+    driver: bridge
